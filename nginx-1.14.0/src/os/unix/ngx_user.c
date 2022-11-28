@@ -21,10 +21,11 @@ ngx_libc_crypt(ngx_pool_t *pool, u_char *key, u_char *salt, u_char **encrypted)
     struct crypt_data   cd;
 
     cd.initialized = 0;
-#ifdef __GLIBC__
-    /* work around the glibc bug */
-    cd.current_salt[0] = ~salt[0];
-#endif
+    // Comment this block in regards to this compilation error: https://github.com/nginx/nginx/commit/1ef5c9ce6f03907dad1677d25f108d2bf59a5c15
+// #ifdef __GLIBC__
+//     /* work around the glibc bug */
+//     cd.current_salt[0] = ~salt[0];
+// #endif
 
     value = crypt_r((char *) key, (char *) salt, &cd);
 
