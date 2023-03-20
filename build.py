@@ -51,7 +51,6 @@ if __name__ == "__main__":
     env = builder.create_standard_envvars(args)
 
     logging.root.info("Configuring build")
-    target = "x86_64-linux-gnu" if "x86" in args.target else "aarch64-linux-gnu"
     builder.execute(args, [
         "./configure",
         "--prefix=/",
