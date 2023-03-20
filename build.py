@@ -43,19 +43,6 @@ if __name__ == "__main__":
         f"zlib1g-dev:{arch}=1:1.2.11*",
     ])
 
-    # builder.install_packages(args, [
-    #     "automake=1:1.16.1*",
-    #     "libtool=2.4.6*",
-    # ])
-    # if args.target.startswith("linux"):
-    #     arch = "arm64" if "arm" in args.target else "amd64"
-    #     builder.install_packages(args, [f"zlib1g-dev:{arch}=1:1.2.11*"])
-
-    # builder.fetch_source(
-    #     args=args,
-    #     source=f"https://github.com/openstack/liberasurecode/archive/refs/tags/{args.version}.tar.gz",
-    #     extract="tar.gz",
-    # )
     logging.root.info("Copying nginx source")
     builder.copy(args, os.path.join(args.code_dir, f"nginx-{args.version}"), args.source_dir)
     builder.copy(args, os.path.join(args.code_dir, "nginx-rtmp-module"), args.source_dir)
@@ -70,8 +57,6 @@ if __name__ == "__main__":
         "--prefix=/",
         "--with-http_ssl_module",
         f"--add-module={args.source_dir}/nginx-rtmp-module",
-        # f"--host={target}",
-        # f"--target={target}"
     ], cwd=source_dir, env=env)
 
     logging.root.info("Manually removing -Werror")
