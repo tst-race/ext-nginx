@@ -27,9 +27,13 @@ import race_ext_builder as builder
 
 def get_cli_arguments():
     """Parse command-line arguments to the script"""
-    parser = builder.get_arg_parser("nginx", "1.14.0", 1, __file__, [
-        builder.TARGET_LINUX_x86_64, builder.TARGET_LINUX_arm64_v8a
-    ])
+    parser = builder.get_arg_parser(
+        "nginx",
+        "1.14.0",
+        1,
+        __file__,
+        [builder.TARGET_LINUX_x86_64, builder.TARGET_LINUX_arm64_v8a],
+    )
     return builder.normalize_args(parser.parse_args())
 
 
@@ -38,44 +42,68 @@ if __name__ == "__main__":
     builder.make_dirs(args)
     builder.setup_logger(args)
 
-    builder.install_packages(args, [
-        ("libpcre3-dev", "2:8.39*", True),
-        ("libssl-dev", "1.1.1*", True),
-        ("zlib1g-dev", "1:1.2.11*", True),
-    ])
+    builder.install_packages(
+        args,
+        [
+            ("libpcre3-dev", "2:8.39*", True),
+            ("libssl-dev", "1.1.1*", True),
+            ("zlib1g-dev", "1:1.2.11*", True),
+        ],
+    )
 
     logging.root.info("Copying nginx source")
-    builder.copy(args, os.path.join(args.code_dir, f"nginx-{args.version}"), args.source_dir)
-    builder.copy(args, os.path.join(args.code_dir, "nginx-rtmp-module"), args.source_dir)
+    builder.copy(
+        args, os.path.join(args.code_dir, f"nginx-{args.version}"), args.source_dir
+    )
+    builder.copy(
+        args, os.path.join(args.code_dir, "nginx-rtmp-module"), args.source_dir
+    )
 
     source_dir = os.path.join(args.source_dir, f"nginx-{args.version}")
     env = builder.create_standard_envvars(args)
 
     logging.root.info("Configuring build")
-    builder.execute(args, [
-        "./configure",
-        "--prefix=/",
-        "--with-http_ssl_module",
-        f"--add-module={args.source_dir}/nginx-rtmp-module",
-    ], cwd=source_dir, env=env)
+    builder.execute(
+        args,
+        [
+            "./configure",
+            "--prefix=/",
+            "--with-http_ssl_module",
+            f"--add-module={args.source_dir}/nginx-rtmp-module",
+        ],
+        cwd=source_dir,
+        env=env,
+    )
 
     logging.root.info("Manually removing -Werror")
-    builder.find_and_replace(args,
-                                root_dir=source_dir,
-                                file_pattern="*Makefile*",
-                                regex="\-Werror",
-                                replacement="")
+    builder.find_and_replace(
+        args,
+        root_dir=source_dir,
+        file_pattern="*Makefile*",
+        regex="\-Werror",
+        replacement="",
+    )
 
     logging.root.info("Building")
-    builder.execute(args, [
-        "make",
-        "-j",
-        args.num_threads,
-    ], cwd=source_dir, env=env)
-    builder.execute(args, [
-        "make",
-        f"DESTDIR={args.install_dir}",
-        "install",
-    ], cwd=source_dir, env=env)
+    builder.execute(
+        args,
+        [
+            "make",
+            "-j",
+            args.num_threads,
+        ],
+        cwd=source_dir,
+        env=env,
+    )
+    builder.execute(
+        args,
+        [
+            "make",
+            f"DESTDIR={args.install_dir}",
+            "install",
+        ],
+        cwd=source_dir,
+        env=env,
+    )
 
     builder.create_package(args)
