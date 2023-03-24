@@ -38,11 +38,10 @@ if __name__ == "__main__":
     builder.make_dirs(args)
     builder.setup_logger(args)
 
-    arch = "arm64" if "arm" in args.target else "amd64"
     builder.install_packages(args, [
-        f"libpcre3-dev:{arch}=2:8.39*",
-        f"libssl-dev:{arch}=1.1.1*",
-        f"zlib1g-dev:{arch}=1:1.2.11*",
+        ("libpcre3-dev", "2:8.39*", True),
+        ("libssl-dev", "1.1.1*", True),
+        ("zlib1g-dev", "1:1.2.11*", True),
     ])
 
     logging.root.info("Copying nginx source")
